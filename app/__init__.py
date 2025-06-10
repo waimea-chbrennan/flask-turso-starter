@@ -1,6 +1,7 @@
 from flask          import Flask
 from flask          import render_template
 from flask          import redirect
+from flask          import request
 from libsql_client  import create_client_sync
 from dotenv         import load_dotenv
 import os
@@ -13,7 +14,6 @@ TURSO_KEY = os.getenv("TURSO_KEY")
 
 # Create the Flask app
 app = Flask(__name__)
-
 
 # Track the DB connection
 client = None
@@ -66,12 +66,42 @@ def show_thing(id):
 def new_thing():
     return render_template("pages/thing-form.jinja")
 
+#-----------------------------------------------------------
+# Process our new thing
+#-----------------------------------------------------------
+@app.post("/add-thing")
+def add_thing():
+    # Get the data from form
+    name = request.form.get("name")
+    price = request.form.get("price")
+
+    # Add the thing to the DB
+    client = connect_db()
+    sql = """
+        INSERT INTO things (name, price)
+        VALUES (?,?)
+    """
+    values = [name, price]
+    client.execute(sql, values)
+
+    # Go home now
+    return redirect("/")
 
 #-----------------------------------------------------------
 # Thing deletion
 #-----------------------------------------------------------
 @app.get("/delete/<int:id>")
 def delete_thing(id):
+
+    client = connect_db()
+    sql = """
+        DELETE FROM things
+        WHERE id=?
+    """
+    values = [id]
+    client.execute(sql, values)
+
+    # Go home now
     return redirect("/")
 
 
@@ -81,3 +111,8 @@ def delete_thing(id):
 @app.errorhandler(404)
 def not_found(error):
     return render_template("pages/404.jinja")
+
+
+
+
+

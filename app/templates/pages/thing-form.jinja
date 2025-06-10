@@ -13,7 +13,20 @@
 
     <article>
 
-        <P>THING FORM HERE!!!</P>
+        <form action="/add-thing" method="POST">
+            <label>
+                Name
+                <input type="text" name="name" required">
+            </label>
+
+            <label>
+                Price <strong>($)</strong>
+                <input type="number" name="price" min="0" placeholder="1" required">
+            </label>
+
+            <button>Add Thing To List!</button>
+
+        </form>
 
     </article>
 
